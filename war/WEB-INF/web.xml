@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+  
+    <servlet>
+        <servlet-name>Proxy</servlet-name>
+        <servlet-class>sis.is480.travelingnurse.api.ProxyServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Proxy</servlet-name>
+        <url-pattern>/api/proxy</url-pattern>
+    </servlet-mapping>
+    <!-- <servlet>
+        <servlet-name>SendTest</servlet-name>
+        <servlet-class>com.g2t2.sm.SendTest</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SendTest</servlet-name>
+        <url-pattern>/api/sendtest</url-pattern>
+    </servlet-mapping> -->
+	<!-- <filter>
+       <filter-name>cross-origin</filter-name>
+       <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
+   </filter>
+   <filter-mapping>
+       <filter-name>cross-origin</filter-name>
+       <url-pattern>/*</url-pattern>
+   </filter-mapping>
+	<filter-mapping>
+	    <filter-name>cross-origin</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping> -->
+	<!-- <filter>
+		<filter-name>CORS</filter-name>
+		<filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
+	</filter>
+	<filter-mapping>
+        <filter-name>CORS</filter-name>
+        <url-pattern>/*</url-pattern>
+	</filter-mapping> -->
+
+</web-app>
