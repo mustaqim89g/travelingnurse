@@ -3,6 +3,8 @@ var markers = [];
 var routes = [];
 var google_api_key = 'AIzaSyCVhqb_4YGV_R2mwK5qNSgsGakBGlx3uBA';
 
+var patient_icon = L.icon({ iconUrl: 'assets/patient_location.gif', iconSize: [32, 32] });
+var nurse_icon = L.icon({ iconUrl: 'assets/nurse_marker.gif', iconSize: [32, 32] });
 
 /* If not initialised, the map will be defined. In both cases, the map will focus on the Singapore Mainland */
 function setMap() {
@@ -148,9 +150,10 @@ function getPatientLocation(patient)
 
 /* Adds a marker to the map given the coordinates. */
 /* It also returns the marker for reference purposes */
-function addMarker(coor)
+function addMarker(coor, option)
 {
-	var marker = L.marker(coor).addTo(map);
+	option = option || { };
+	var marker = L.marker(coor, option).addTo(map);
 	markers.push(marker);
 	return marker;
 }

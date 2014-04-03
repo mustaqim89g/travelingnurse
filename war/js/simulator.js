@@ -7,6 +7,10 @@ function Simulator(data)
 	this.markers = [];
 	this.polylines = [];
 	this.colors = ['rgb(255, 204, 0)', 'red', 'green', 'blue', 'rgb(112, 48, 160)', 'rgb(255, 0, 102)', 'rgb(254, 224, 2)', 'rgb(215, 41, 41)'];
+	this.currentTime = 400;
+	this.simulationSpeed = 200;
+	this.simulatorInterval = null;
+	this.simulationTickFunction = function() { };
 	
 	/* Calculates and schedule all tasks  */
 	this.performScheduling = function()
@@ -54,15 +58,107 @@ function Simulator(data)
 				var nextLocation = scheduleSlots.bookings[j + 1];
 				
 				var route = this.findRoute(currentLocation, nextLocation);
-				//alert(JSON.stringify(route));
+				
 				if (route)
 				{
 					//alert(JSON.stringify(route));
 					scheduleSlots.legs.push(route);
-					//scheduleSlots.routes.concat(route.points);
+					
+					// At the same time, we try to fill in the travelling gaps so that our things can move
+					var arrayOfPoints = route.points[0];
+					var timeDifference = 1;
+					var currentSlotIndex = 0;
+					var travelingTo = '';
+					
+					if (currentLocation == this.simulationData.base)
+					{
+						timeDifference = nextLocation.timeslotStart - scheduleSlots.nurseStart;
+						currentSlotIndex = scheduleSlots.nurseStart;
+						travelingTo = nextLocation.patientName;
+					}
+					else if (nextLocation == this.simulationData.base)
+					{
+						timeDifference = scheduleSlots.nurseEnd - currentLocation.timeslotEnd;
+						currentSlotIndex = currentLocation.timeslotEnd;
+						travelingTo = 'base';
+					}
+					else
+					{
+						timeDifference = nextLocation.timeslotStart - currentLocation.timeslotEnd;
+						currentSlotIndex = currentLocation.timeslotEnd;
+						travelingTo = nextLocation.patientName;
+					}
+					
+					var timeToRemainStill = timeDifference - route.totalDuration;
+					
+					
+					var test = true;
+					
+					for (var t = 0; t < timeToRemainStill; t++)
+					{
+						if (test)
+						{
+							//alert("still " + currentSlotIndex);
+							test = false;
+						}
+						
+						var slot = scheduleSlots.slots[currentSlotIndex];
+						slot.lat = currentLocation.lat;
+						slot.lng = currentLocation.lng;
+						slot.action = 'Waiting to travel to ' + travelingTo;
+						
+						scheduleSlots.slots[currentSlotIndex] = slot;
+						currentSlotIndex++;
+					}
+					
+					
+					var interval = 1;
+					if (arrayOfPoints <= route.totalDuration)
+					{
+						interval = route.totalDuration / arrayOfPoints.length;
+					}
+					else
+					{
+						interval = arrayOfPoints.length / route.totalDuration;
+					}
+					
+					test = true;
+					
+					var currentPointArray = 0;
+					for (var l = currentSlotIndex; l < nextLocation.timeslotStart; l++)
+					{
+						if (test)
+						{
+							//alert("travel " + currentSlotIndex);
+							test = false;
+						}
+						
+						var slot = scheduleSlots.slots[l];
+						var point = arrayOfPoints[Math.floor(currentPointArray)];
+						slot.lat = point[0];
+						slot.lng = point[1];
+						slot.action = 'Traveling to ' + travelingTo;
+						
+						scheduleSlots.slots[l] = slot;
+						
+						currentPointArray = currentPointArray + interval;
+					}
+					
 				}
 			}
+			
+			/*for (var v = 0; v < 1440; v++)
+			{
+				var slot = scheduleSlots.slots[v];
+				if (slot.action)
+				{
+					alert(v + ' ' + slot.action);
+				}
+			}*/
+			
 		}
+		
+		
 	}
 	
 	/* Creates the schedule template and fill in with nurses availability */
@@ -164,6 +260,7 @@ function Simulator(data)
 					slot.bookingIndex = bookingIndex;
 					slot.lat = booking.lat;
 					slot.lng = booking.lng;
+					slot.action = 'Serving patient ' + booking.patientName;
 					
 					scheduleSlots.slots[slotIndex] = slot;
 				}
@@ -230,27 +327,67 @@ function Simulator(data)
 			var patientName = this.simulationData.patientList[i];
 			var patient = this.simulationData.patients[patientName];
 			
-			patient.marker = addMarker([patient.lat, patient.lng]);
+			patient.marker = addMarker([patient.lat, patient.lng], { icon: patient_icon });
+		}
+		
+		// Plot all of the nurses
+		for (var i = 0; i < this.simulationData.nurseList.length; i++)
+		{
+			var nurseName = this.simulationData.nurseList[i];
+			var nurse = this.simulationData.nurses[nurseName];
+			
+			nurse.marker = addMarker([this.simulationData.base.lat, this.simulationData.base.lng], { icon: nurse_icon });
 		}
 		
 		// for each of the nurse schedule, plot the route
 		for (var i = 0; i < this.schedule.length; i++)
 		{
 			var scheduleSlots = this.schedule[i];
-			//alert("plotting...");
 			if (scheduleSlots)
 			{
-				//alert(JSON.stringify(scheduleSlots.legs))
 				for (var j = 0; j < scheduleSlots.legs.length; j++)
 				{
-					//alert(JSON.stringify(scheduleSlots.legs[j]))
-					//scheduleSlots.legs[j].points = decodeLineFully(scheduleSlots.legs[j].overview_polylines);
+
 					plotRoute(scheduleSlots.legs[j].points[0], scheduleSlots.color);
-					//scheduleSlots.legs[j].points.length = 0;
 				}
-				//alert('platter');
 			}
 		}
 	}
 	
+	this.simulate = function()
+	{
+		var that = this;
+		this.simulatorInterval = setInterval(function() { that.simulatingFunction(that); }, this.simulationSpeed);
+	}
+	
+	this.simulatingFunction = function(currentInstance)
+	{
+		currentInstance.currentTime++;
+		currentInstance.simulationTickFunction = currentInstance.simulationTickFunction || function() { };
+		
+		if (currentInstance.currentTime < 1440)
+		{
+			for (var i = 0; i < currentInstance.schedule.length; i++)
+			{
+				var scheduleSlots = currentInstance.schedule[i];
+				var nurse = currentInstance.simulationData.nurses[scheduleSlots.nurseName];
+				var marker = nurse.marker;
+				
+				var slot = scheduleSlots.slots[currentInstance.currentTime];
+				var newLatLng = new L.LatLng(slot.lat, slot.lng);
+			    marker.setLatLng(newLatLng); 
+			}
+			
+			currentInstance.simulationTickFunction();
+		}
+		else
+		{
+			clearInterval(currentInstance.simulatorInterval);
+		}
+	}
+	
+	this.stopSimulation = function()
+	{
+		
+	}
 }

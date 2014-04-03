@@ -36,7 +36,7 @@ function loadData()
 				currentData = 'patient';
 				currentDataIndex = -1;
 				
-				totalProgress = 1 + data.patientList.length + Math.floor((data.patientList.length * (data.patientList.length - 1)) / 2);
+				totalProgress = 1 + data.patientList.length * 2 +  Math.floor(data.patientList.length * data.patientList.length);
 				currentProgress = -1;
 				
 				onLoadingStartFunction = onLoadingStartFunction || function() { };
@@ -119,8 +119,8 @@ function getNextData()
 					
 					currentData = 'routes';
 					currentDataIndex = 0;
-					currentDataSecondIndex = 1;
-					currentTotalProgress = Math.floor((data.patientList.length * (data.patientList.length - 1)) / 2);
+					currentDataSecondIndex = 0;
+					currentTotalProgress = Math.floor(data.patientList.length * data.patientList.length)//Math.floor((data.patientList.length * (data.patientList.length - 1)) / 2);
 					loadingLock = false;
 				}
 			}
@@ -155,7 +155,7 @@ function getNextData()
 			{
 				currentProgress--;
 				currentDataIndex++;
-				currentDataSecondIndex = currentDataIndex + 1;
+				currentDataSecondIndex = 0;
 				loadingLock = false;
 			}
 		}
@@ -167,7 +167,7 @@ function getNextData()
 			loadingLock = false;
 		}
 	}
-	else // if baseroutes
+	else if (currentData == 'baseroutes')
 	{
 		if (currentDataIndex < data.patientList.length)
 		{
@@ -181,6 +181,33 @@ function getNextData()
 					if (exData)
 					{
 						addNewRoute(data.base, patient, exData.totalDuration, exData.routes);
+					}
+					loadingLock = false;
+				}
+			);
+		}
+		else
+		{
+			currentProgress--;
+			currentData = 'baseroutes_reverse';
+			currentDataIndex = -1;
+			loadingLock = false;
+		}
+	}
+	else
+	{
+		if (currentDataIndex < data.patientList.length)
+		{
+			var patientName = data.patientList[currentDataIndex];
+			var patient = data.patients[patientName];
+
+			getRoute(patient, data.base, 
+				function(result)
+				{
+					var exData = extractRouteResults(result);
+					if (exData)
+					{
+						addNewRoute(patient, data.base, exData.totalDuration, exData.routes);
 					}
 					loadingLock = false;
 				}
@@ -271,7 +298,7 @@ function addNewPatient(patientName, homeAddress, telephoneNumber)
 /* All parameters are required. */
 function addNewRoute(origin, destination, totalDuration, overview_polylines)
 {
-	if (origin && destination && totalDuration && overview_polylines)
+	if (origin && destination && overview_polylines)
 	{
 		var key = pair(origin, destination);
 		if (data.routes[key] == null)
