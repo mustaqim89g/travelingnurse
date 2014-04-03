@@ -7,8 +7,8 @@ function Simulator(data)
 	this.markers = [];
 	this.polylines = [];
 	this.colors = ['rgb(255, 204, 0)', 'red', 'green', 'blue', 'rgb(112, 48, 160)', 'rgb(255, 0, 102)', 'rgb(254, 224, 2)', 'rgb(215, 41, 41)'];
-	this.currentTime = 400;
-	this.simulationSpeed = 200;
+	this.currentTime = -1;
+	this.simulationSpeed = 500;
 	this.simulatorInterval = null;
 	this.simulationTickFunction = function() { };
 	
@@ -388,6 +388,24 @@ function Simulator(data)
 	
 	this.stopSimulation = function()
 	{
-		
+		clearInterval(this.simulatorInterval);
 	}
+	
+	this.normal = function()
+	{
+		clearInterval(this.simulatorInterval);
+		this.simulationSpeed = 500;
+		var that = this;
+		this.simulatorInterval = setInterval(function() { that.simulatingFunction(that); }, this.simulationSpeed);
+	}
+	
+	this.faster = function()
+	{
+		clearInterval(this.simulatorInterval);
+		this.simulationSpeed = 200;
+		var that = this;
+		this.simulatorInterval = setInterval(function() { that.simulatingFunction(that); }, this.simulationSpeed);
+	}
+	
+	
 }

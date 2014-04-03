@@ -31,15 +31,13 @@
 	<div class="clear"></div>
 </div>
 <div id="test" class="center margined-top">
-	<div class="large-icon nurse-icon"></div>
-	<div class="large-icon patient-icon"></div>
-	<div class="large-icon schedule-icon"></div>
-	<div class="large-icon route-icon"></div>
+	<div class="large-icon nurse nurse-icon"></div>
+	<div class="large-icon patient patient-icon"></div>
+	<div class="large-icon schedule schedule-icon"></div>
 	<div class="clear"></div>
 	<div class="icon-text nurse">Nurses/Healthcare Professionals</div>
 	<div class="icon-text patient">Patients</div>
 	<div class="icon-text schedule">Schedule</div>
-	<div class="icon-text route">Route</div>
 	<div class="clear"></div>
 	<div style="margin-top: 50px">
 		<div class="small-icon options gear-icon"></div>
@@ -69,9 +67,143 @@
 </div>
 </div>
 
+<div id="list-cover" class="cover" style="display: none">
+<div>
+	<div class="left logo">Traveling<b>Nurses</b></div>
+	<div class="right"></div>
+	<div class="clear"></div>
+</div>
+<div class="center margined-top">
+	<div style="margin-top: 50px">
+		<div class="small-icon back back-icon"></div>
+		<div class="small-text back">Go Back</div>
+		<div class="small-icon add add-icon"></div>
+		<div class="small-text add">New</div>
+		<div class="clear"></div>
+	</div>
+	<div id="list-canvas" style="margin-top: 50px; overflow: auto;">
+		
+	</div>
+</div>
+</div>
+
+<div id="nurse-cover" class="cover" style="display: none">
+<div>
+	<div class="left logo">Traveling<b>Nurses</b> | Nurses</div>
+	<div class="right"></div>
+	<div class="clear"></div>
+</div>
+<div class="center margined-top">
+	<div style="margin-top: 50px">
+		<div class="small-icon back-list back-icon"></div>
+		<div class="small-text back-list">Go Back</div>
+		<div class="clear"></div>
+	</div>
+	<div style="margin-top: 50px">
+		<div class="heading-name">Name</div>
+		<div><input id="txtNurseName" type="text" /></div>
+		<div class="heading-name">Work Starts From</div>
+		<div>
+			<select id="ddlWorkStartsFrom">
+				<option value="0">0</option><option value="1">1</option><option value="2">2</option>
+				<option value="3">3</option><option value="4">4</option><option value="5">5</option>
+				<option value="6">6</option><option value="7">7</option><option value="8">8</option>
+				<option value="9">9</option><option value="10">10</option><option value="11">11</option>
+				<option value="12">12</option><option value="13">13</option><option value="14">14</option>
+				<option value="15">15</option><option value="16">16</option><option value="17">17</option>
+				<option value="18">18</option><option value="19">19</option><option value="20">20</option>
+				<option value="21">21</option><option value="22">22</option><option value="23">23</option>
+			</select>
+		</div>
+		<div class="heading-name">Work Ends At</div>
+		<div>
+			<select id="ddlWorkEndsAt">
+				<option value="0">0</option><option value="1">1</option><option value="2">2</option>
+				<option value="3">3</option><option value="4">4</option><option value="5">5</option>
+				<option value="6">6</option><option value="7">7</option><option value="8">8</option>
+				<option value="9">9</option><option value="10">10</option><option value="11">11</option>
+				<option value="12">12</option><option value="13">13</option><option value="14">14</option>
+				<option value="15">15</option><option value="16">16</option><option value="17">17</option>
+				<option value="18">18</option><option value="19">19</option><option value="20">20</option>
+				<option value="21">21</option><option value="22">22</option><option value="23">23</option>
+			</select>
+		</div>
+	</div>
+	<div style="margin-top: 50px">
+		<div class="small-icon save-nurse save-icon"></div>
+		<div class="small-text save-nurse">Save</div>
+	</div>
+</div>
+</div>
+
+
+<div id="patient-cover" class="cover" style="display: none">
+<div>
+	<div class="left logo">Traveling<b>Nurses</b> | Patients</div>
+	<div class="right"></div>
+	<div class="clear"></div>
+</div>
+<div class="center margined-top">
+	<div style="margin-top: 50px">
+		<div class="small-icon back-list back-icon"></div>
+		<div class="small-text back-list">Go Back</div>
+		<div class="clear"></div>
+	</div>
+	<div style="margin-top: 50px">
+		<div class="heading-name">Name</div>
+		<div><input id="txtPatientName" type="text" /></div>
+		<div class="heading-name">Home Address</div>
+		<div><input id="txtPatientAddress" type="text" /></div>
+		<div class="heading-name">Phone Number</div>
+		<div><input id="txtPatientPhone" type="text" /></div>
+	</div>
+	<div style="margin-top: 50px">
+		<div class="small-icon save-patient save-icon"></div>
+		<div class="small-text save-patient">Save</div>
+	</div>
+</div>
+</div>
+
+<div id="booking-cover" class="cover" style="display: none">
+<div>
+	<div class="left logo">Traveling<b>Nurses</b> | Check Up Schedule</div>
+	<div class="right"></div>
+	<div class="clear"></div>
+</div>
+<div class="center margined-top">
+	<div style="margin-top: 50px">
+		<div class="small-icon back-list back-icon"></div>
+		<div class="small-text back-list">Go Back</div>
+		<div class="clear"></div>
+	</div>
+	<div style="margin-top: 50px">
+		<div class="heading-name">Patient Name</div>
+		<div>
+			<select id="ddlPatientName">
+				
+			</select>
+		</div>
+		<div class="heading-name">Medical Schedule</div>
+		<div>
+			<select id="ddlMedicalSchedule">
+				
+			</select>
+		</div>
+	</div>
+	<div style="margin-top: 50px">
+		<div class="small-icon save-booking save-icon"></div>
+		<div class="small-text save-booking">Save</div>
+	</div>
+</div>
+</div>
+
 <div class="simulation-control" style="display: none">
 <div class="time">
 </div>
+<div id="btn_speed_normal" class="left button selected">Normal</div>
+<div id="btn_speed_faster" class="left button">Faster</div>
+<div id="btn_stop" class="left button">Stop</div>
+<div class="clear"></div>
 </div>
 
 

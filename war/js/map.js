@@ -1,7 +1,8 @@
 var map = null;
 var markers = [];
 var routes = [];
-var google_api_key = 'AIzaSyCVhqb_4YGV_R2mwK5qNSgsGakBGlx3uBA';
+var polylines_ = [];
+var google_api_key = 'AIzaSyAfgUa4EBo0h7YVLDBnSfklmWlS9tY0EUM';
 
 var patient_icon = L.icon({ iconUrl: 'assets/patient_location.gif', iconSize: [32, 32] });
 var nurse_icon = L.icon({ iconUrl: 'assets/nurse_marker.gif', iconSize: [32, 32] });
@@ -109,6 +110,7 @@ function extractRouteResults(data)
 					theRoutes.push(jsonData.routes[i].overview_polyline);
 				}
 				
+				totalDuration += 30;
 				return { totalDuration: totalDuration, routes: theRoutes };
 			}
 			else
@@ -172,6 +174,7 @@ function plotRoute(routes, color)
 		        clickable: false
 			}
 		).addTo(map);
+		polylines_.push(polyline);
 	//}
 }
 
@@ -210,6 +213,23 @@ function mapPointVertexes()
 			});	
 		}
 	}
+}
+
+function clearMap()
+{
+	for (var i = 0; i < markers.length; i++)
+	{
+		var marker = markers[i];
+		map.removeLayer(marker);
+	}
+
+	for (var i = 0; i < polylines_.length; i++)
+	{
+		var line = polylines_[i];
+		map.removeLayer(line);
+	}
+	
+	
 }
 
 

@@ -33,6 +33,7 @@ function loadData()
 		{
 			if (data.base != null)
 			{
+				clearMap();
 				currentData = 'patient';
 				currentDataIndex = -1;
 				
@@ -347,7 +348,7 @@ function addNewBooking(patientName, bookingHour, bookingMinute, duration)
 	var patient = data.patients[patientName];
 	if (patient)
 	{
-		if (bookingHour && bookingMinute && duration)
+		if (duration)
 		{
 			var booking = 
 			{

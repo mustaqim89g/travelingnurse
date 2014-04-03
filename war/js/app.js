@@ -6,7 +6,7 @@ $(document).ready(function(){
 	addNewPatient('Nenek', 'Block 513 West Coast Road Singapore 120513', '67741009');
 	addNewPatient('CoolData', '80 Stamford Road Singapore 178902', '67741009');
 	addNewPatient('Alibaba', 'Ngee Ann Polytechnic, Singapore', '67741009');
-	addNewPatient('James Bond', 'Expo MRT Station, Singapore', '67741009');
+	addNewPatient('James Bond', '21 Changi South Avenue 1 Singapore 486065', '67741009');
 	addNewPatient('Alfred', 'Jurong Bird Park Singapore', '67741009');
 	addNewPatient('John', 'Singapore Polytechnic', '67741009');
 	
