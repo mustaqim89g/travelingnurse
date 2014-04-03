@@ -240,11 +240,13 @@ function Simulator(data)
 			//alert("plotting...");
 			if (scheduleSlots)
 			{
-				alert(JSON.stringify(scheduleSlots.legs))
+				//alert(JSON.stringify(scheduleSlots.legs))
 				for (var j = 0; j < scheduleSlots.legs.length; j++)
 				{
 					//alert(JSON.stringify(scheduleSlots.legs[j]))
+					//scheduleSlots.legs[j].points = decodeLineFully(scheduleSlots.legs[j].overview_polylines);
 					plotRoute(scheduleSlots.legs[j].points[0], scheduleSlots.color);
+					//scheduleSlots.legs[j].points.length = 0;
 				}
 				//alert('platter');
 			}

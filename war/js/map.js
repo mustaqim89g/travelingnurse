@@ -159,17 +159,17 @@ function addMarker(coor)
 /* The routes is an array of legs, each containing an array of points that would then be plotted */
 function plotRoute(routes, color)
 {
-	for (var i = 0; i < routes.length; i++)
-	{
+	//for (var i = 0; i < routes.length; i++)
+	//{
 		var polyline = new L.Polyline(routes,
 			{
 		        color: color,
-		        opacity: 0.5,
-		        weight: 2,
+		        opacity: 0.7,
+		        weight: 5,
 		        clickable: false
 			}
 		).addTo(map);
-	}
+	//}
 }
 
 
