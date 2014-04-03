@@ -29,15 +29,97 @@ function Simulator(data)
 			var booking = this.simulationData.bookings[bookingIndex];
 			var success = false;
 			
+			var workableScheduleSlots = [];
+			var workableResults = [];
+			
 			for (var scheduleIndex = 0; scheduleIndex < this.schedule.length; scheduleIndex++)
 			{
 				var scheduleSlots = this.schedule[scheduleIndex];
-				if (this.assignToNurse(scheduleSlots, booking, booking))
+				var result = this.assignToNurse(scheduleSlots, booking, bookingIndex);
+				if (result[0])
 				{
-					success = true;
-					break;
+					workableScheduleSlots.push(scheduleSlots);
+					workableResults.push(result);
 				}
 			}
+			
+			if (workableScheduleSlots.length > 1)
+			{
+				var scheduleWithTheLeastBookings = [];
+				var workableResultsWithTheLeastBookings = [];
+				// Find the schedule with the lowest number of bookings
+				var lowestNumberOfBookings = 100000;
+				for (var m = 0; m < workableScheduleSlots.length; m++)
+				{
+					var scheduleSlots = workableScheduleSlots[m];
+					if (scheduleSlots.bookings.length < lowestNumberOfBookings)
+					{
+						lowestNumberOfBookings = scheduleSlots.bookings.length;
+						scheduleWithTheLeastBookings.length = 0;
+						workableResultsWithTheLeastBookings .length = 0;
+						
+						scheduleWithTheLeastBookings.push(scheduleSlots);
+						workableResultsWithTheLeastBookings.push(workableResults[m]);
+					}
+					else if (scheduleSlots.bookings.length == lowestNumberOfBookings)
+					{
+						scheduleWithTheLeastBookings.push(scheduleSlots);
+						workableResultsWithTheLeastBookings.push(workableResults[m]);
+					}
+				}
+				
+				if (scheduleWithTheLeastBookings.length > 1)
+				{
+					// Find the schedule that has the lowest score
+					var scheduleWithTheLeastScore = [];
+					var workableResultsWithTheLeastScore = [];
+					// Find the schedule with the lowest number of bookings
+					var lowestScore = 10000000;
+					for (var m = 0; m < workableScheduleSlots.length; m++)
+					{
+						var result = workableResultsWithTheLeastBookings[m];
+						if (result[1] < lowestScore)
+						{
+							lowestScore = result[1];
+							scheduleWithTheLeastScore.length = 0;
+							workableResultsWithTheLeastScore.length = 0;
+							
+							scheduleWithTheLeastScore.push(scheduleWithTheLeastBookings[m]);
+							workableResultsWithTheLeastScore.push(result);
+						}
+						else if (scheduleSlots.bookings.length == lowestNumberOfBookings)
+						{
+							scheduleWithTheLeastScore.push(scheduleWithTheLeastBookings[m]);
+							workableResultsWithTheLeastScore.push(result);
+						}
+					}
+					
+					if (scheduleWithTheLeastScore.length >= 1)
+					{
+						this.assignToNurse(scheduleWithTheLeastScore[0], booking, bookingIndex, true);
+						success = true;
+					}
+					
+				}
+				else
+				{
+					if (scheduleWithTheLeastBookings.length == 1)
+					{
+						this.assignToNurse(scheduleWithTheLeastBookings[0], booking, bookingIndex, true);
+						success = true;
+					}
+				}
+				
+			}
+			else
+			{
+				if (workableScheduleSlots.length == 1)
+				{
+					this.assignToNurse(workableScheduleSlots[0], booking, bookingIndex, true);
+					success = true;
+				}
+			}
+			
 			
 			if (!success)
 			{
@@ -214,13 +296,15 @@ function Simulator(data)
 	
 	/* Attempts to assign the booking to the current nurse schedule. */ 
 	/* Returns true if successfully added. False if otherwise */
-	this.assignToNurse = function(scheduleSlots, booking, bookingIndex)
+	this.assignToNurse = function(scheduleSlots, booking, bookingIndex, addImmediately)
 	{
+		addImmediately = addImmediately || false;
+		
 		// if booking is outside of nurse working hour
 		if (scheduleSlots.nurseStart > booking.timeslotStart || scheduleSlots.nurseEnd <= booking.timeslotEnd)
 		{
 			/*alert(booking.patientName + ' Reject from ' + scheduleSlots.nurseName + ': Outside working hour');*/
-			return false;
+			return [false, 0];
 		}
 		
 		// Determine slot number from start to end of booking is empty
@@ -230,7 +314,7 @@ function Simulator(data)
 			if (slot.booking != null)
 			{
 				/*alert(booking.patientName + ' Reject from ' + scheduleSlots.nurseName + ': Overlap other booking');*/
-				return false;
+				return [false, 0];
 			}
 		}
 		
@@ -253,26 +337,30 @@ function Simulator(data)
 		{
 			if (routeAhead.totalDuration <= timeAvailableAhead && routeBeyond.totalDuration <= timeAvailableBeyond)
 			{
-				for (var slotIndex = booking.timeslotStart; slotIndex < booking.timeslotEnd; slotIndex++)
+				if (addImmediately)
 				{
-					var slot = scheduleSlots.slots[slotIndex];
-					slot.booking = booking;
-					slot.bookingIndex = bookingIndex;
-					slot.lat = booking.lat;
-					slot.lng = booking.lng;
-					slot.action = 'Serving patient ' + booking.patientName;
+					for (var slotIndex = booking.timeslotStart; slotIndex < booking.timeslotEnd; slotIndex++)
+					{
+						var slot = scheduleSlots.slots[slotIndex];
+						slot.booking = booking;
+						slot.bookingIndex = bookingIndex;
+						slot.lat = booking.lat;
+						slot.lng = booking.lng;
+						slot.action = 'Serving patient ' + booking.patientName;
+						
+						scheduleSlots.slots[slotIndex] = slot;
+					}
 					
-					scheduleSlots.slots[slotIndex] = slot;
+					scheduleSlots.bookings.push(booking);
 				}
 				
-				scheduleSlots.bookings.push(booking);
-				return true;
+				return [true, routeAhead.totalDuration + routeBeyond.totalDuration];
 			}
 			
 		}
 		
 		
-		return false;
+		return [false, 0];
 	}
 	
 	
