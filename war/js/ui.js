@@ -34,4 +34,7 @@ function onLoadingUI()
 function onLoadingCompleteUI()
 {
 	$('#loading-cover').hide();
+	
+	sims = new Simulator(data);
+	sims.performScheduling();
 }

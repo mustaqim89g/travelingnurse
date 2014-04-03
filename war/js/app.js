@@ -1,3 +1,5 @@
+var sims = null;
+
 $(document).ready(function(){
 	setMap();
 	addNewPatient('Mustaqim', 'Block 907 Jurong West St 91 Singapore 640907', '97325634');
@@ -5,7 +7,13 @@ $(document).ready(function(){
 	addNewPatient('CoolData', '80 Stamford Road Singapore 178902', '67741009');
 	
 	setBase('NUH', '5 Lower Kent Ridge Road Singapore 119074');
-	addNewNurse('Jamilah', 6, 10);
+	addNewNurse('Jamilah', 6, 18);
+	addNewNurse('Rosminah', 10, 23);
+	
+	addNewBooking('Mustaqim', 9, 30, 60);
+	addNewBooking('Nenek', 11, 30, 60);
+	addNewBooking('CoolData', 11, 30, 60);
+	addNewBooking('Mustaqim', 19, 30, 60);
 });
 
 /* An exception class that will be used for exception handling */
@@ -41,14 +49,18 @@ function request(url, data, action, done, error)
 	.fail(error);
 }
 
-
+/* Encodes URL of the request */
 function encodeUrl(urlPart)
 {
 	return encodeURIComponent(urlPart);
 }
 
-
-
-
-
-
+/* Clones all content of an object into a new object */
+/* WARNING: This method uses JSON stringify-and-reparse technique. Only data are retained. Functions will be lost */
+function clone(obj)
+{
+	var str = JSON.stringify(obj);
+	var newObj = JSON.parse(str);
+	
+	return newObj
+}

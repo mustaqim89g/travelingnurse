@@ -5,7 +5,7 @@ data.nurseList = [];
 data.patientList = [];
 data.routes = { };
 data.routeList = [];
-data.schedules = [];
+data.bookings = [];
 data.base = null;
 
 /* Variables for the loading of information */
@@ -189,11 +189,23 @@ function getNextData()
 		else
 		{
 			clearInterval(loadingInterval);
+			
+			// Do last minute matching of data
+			for (var i = 0; i < data.bookings.length; i++)
+			{
+				var booking = data.bookings[i];
+				var patientName = booking.patientName;
+				var patient = data.patients[patientName];
+				
+				booking.lat = patient.lat;
+				booking.lng = patient.lng;
+			}
+			
+			loadingLock = false;
 			onLoadingCompleteFunction();
 		}
 	}
 }
-
 
 /* Sets the base information at which all nurses will start from and ends at */
 /* All parameters are required */
@@ -268,7 +280,7 @@ function addNewRoute(origin, destination, totalDuration, overview_polylines)
 			{
 				origin: origin,
 				destination: destination,
-				totalDuration: totalDuration,
+				totalDuration: Math.floor(totalDuration / 60),
 				overview_polylines: overview_polylines, 
 				points: decodeLineFully(overview_polylines) // Array of array of points make up individual polylines
 			};
@@ -300,3 +312,36 @@ function decodeLineFully(overview_polylines)
 	return thePoints;
 }
 
+/* Add a booking to schedule */
+/* PatientName must already exists */
+/* All parameters are required */
+function addNewBooking(patientName, bookingHour, bookingMinute, duration)
+{
+	var patient = data.patients[patientName];
+	if (patient)
+	{
+		if (bookingHour && bookingMinute && duration)
+		{
+			var booking = 
+			{
+				patientName: patientName,
+				bookingHour: bookingHour,
+				bookingMinute: bookingMinute,
+				duration: duration,
+				timeslotStart: bookingHour * 60 + bookingMinute,
+				timeslotEnd: bookingHour * 60 + bookingMinute + duration,
+				completed: false,
+			}
+			
+			data.bookings.push(booking);
+		}
+		else
+		{
+			throw new AppException('Booking Not Created', 'bookingHour, bookingMinute and duration must be provided');
+		}
+	}
+	else
+	{
+		throw new AppException('Booking Not Created', 'Patient must already exist.');
+	}
+}
