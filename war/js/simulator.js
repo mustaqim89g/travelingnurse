@@ -4,6 +4,9 @@ function Simulator(data)
 	this.simulationData = clone(data);
 	this.schedule = [];
 	this.unscheduledBookings = [];
+	this.markers = [];
+	this.polylines = [];
+	this.colors = ['rgb(255, 204, 0)', 'red', 'green', 'blue', 'rgb(112, 48, 160)', 'rgb(255, 0, 102)', 'rgb(254, 224, 2)', 'rgb(215, 41, 41)'];
 	
 	/* Calculates and schedule all tasks  */
 	this.performScheduling = function()
@@ -37,6 +40,29 @@ function Simulator(data)
 				this.unscheduledBookings.push(booking);
 			}
 		}
+		
+		// for each of the scheduled nurses, we add the ending base so that we can finally draw the polylines
+		// once added we can query for the polylines and add them to the path
+		for (var i = 0; i < this.schedule.length; i++)
+		{
+			var scheduleSlots = this.schedule[i];
+			scheduleSlots.bookings.push(this.simulationData.base);
+			
+			for (var j = 0; j < scheduleSlots.bookings.length - 1; j++)
+			{
+				var currentLocation = scheduleSlots.bookings[j];
+				var nextLocation = scheduleSlots.bookings[j + 1];
+				
+				var route = this.findRoute(currentLocation, nextLocation);
+				//alert(JSON.stringify(route));
+				if (route)
+				{
+					//alert(JSON.stringify(route));
+					scheduleSlots.legs.push(route);
+					//scheduleSlots.routes.concat(route.points);
+				}
+			}
+		}
 	}
 	
 	/* Creates the schedule template and fill in with nurses availability */
@@ -57,8 +83,13 @@ function Simulator(data)
 				nurseStart: nurseStart,
 				nurseEnd: nurseEnd,
 				bookings: [],
-				slots: []
-			}
+				routes: [],
+				legs: [],
+				slots: [],
+				color: this.colors[Math.floor(i % this.colors.length)]
+			};
+			
+			nurseSlots.bookings.push(this.simulationData.base);
 			
 			for (var time = 0; time < 1440; time++)
 			{
@@ -107,7 +138,6 @@ function Simulator(data)
 			}
 		}
 		
-		// Find the bookings or base in front and after the current booking
 		var bookingAhead = this.findBookingAhead(scheduleSlots, booking);
 		var bookingBeyond = this.findBookingBeyond(scheduleSlots, booking);
 		
@@ -141,19 +171,9 @@ function Simulator(data)
 				scheduleSlots.bookings.push(booking);
 				return true;
 			}
-			/*alert("timeavailableahead: " + timeAvailableAhead);
-			alert(JSON.stringify(routeAhead));
-			alert("timeavailablebeyond: " + timeAvailableBeyond);
-			alert(JSON.stringify(routeBeyond));
 			
-			alert(booking.patientName + ' Reject from ' + scheduleSlots.nurseName + ': Too near to working hour start/end');*/
 		}
-		/*else
-		{
-			alert(JSON.stringify(booking));
-			alert(JSON.stringify(bookingAhead));
-			alert(JSON.stringify(bookingBeyond));
-		}*/
+		
 		
 		return false;
 	}
@@ -200,6 +220,35 @@ function Simulator(data)
 		if (route) return route;
 		pairName = pair(booking2, booking1);
 		return this.simulationData.routes[pairName];
+	}
+	
+	this.plot = function()
+	{
+		// plot all the patients
+		for (var i = 0; i < this.simulationData.patientList.length; i++)
+		{
+			var patientName = this.simulationData.patientList[i];
+			var patient = this.simulationData.patients[patientName];
+			
+			patient.marker = addMarker([patient.lat, patient.lng]);
+		}
+		
+		// for each of the nurse schedule, plot the route
+		for (var i = 0; i < this.schedule.length; i++)
+		{
+			var scheduleSlots = this.schedule[i];
+			//alert("plotting...");
+			if (scheduleSlots)
+			{
+				alert(JSON.stringify(scheduleSlots.legs))
+				for (var j = 0; j < scheduleSlots.legs.length; j++)
+				{
+					//alert(JSON.stringify(scheduleSlots.legs[j]))
+					plotRoute(scheduleSlots.legs[j].points[0], scheduleSlots.color);
+				}
+				//alert('platter');
+			}
+		}
 	}
 	
 }

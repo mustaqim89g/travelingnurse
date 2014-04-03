@@ -37,4 +37,5 @@ function onLoadingCompleteUI()
 	
 	sims = new Simulator(data);
 	sims.performScheduling();
+	sims.plot();
 }

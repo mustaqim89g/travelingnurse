@@ -10,7 +10,7 @@ function setMap() {
 	{
 		map = L.map('map', { zoomControl: false }).setView([1.355312, 103.827068], 12);
 		var layer = L.tileLayer(	
-			'http://{s}.tile.cloudmade.com/{key}/3337/256/{z}/{x}/{y}.png',
+			'http://{s}.tile.cloudmade.com/{key}/22677/256/{z}/{x}/{y}.png',
 			{
 				attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
 				key: '083ffc0920af489ea567776456cf13b5'
@@ -157,13 +157,18 @@ function addMarker(coor)
 
 /* Plots polyline on the graph using the given routes */
 /* The routes is an array of legs, each containing an array of points that would then be plotted */
-function plotRoute(routes)
+function plotRoute(routes, color)
 {
 	for (var i = 0; i < routes.length; i++)
 	{
-		var point = routes[i];
-		var polyline = new L.Polyline(point).addTo(map);
-		routes.push(polyline);
+		var polyline = new L.Polyline(routes,
+			{
+		        color: color,
+		        opacity: 0.5,
+		        weight: 2,
+		        clickable: false
+			}
+		).addTo(map);
 	}
 }
 
