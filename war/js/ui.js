@@ -10,6 +10,7 @@ $(document).ready(function(){
 	$('.nurse').click(on_nurses_click);
 	$('.patient').click(on_patients_click);
 	$('.schedule').click(on_bookings_click);
+	$('.options').click(on_options_click);
 	$('.back').click(on_backfromlist_click)
 	$('.add').click(on_add_click);
 	$('.back-list').click(on_backlist_click);
@@ -17,6 +18,7 @@ $(document).ready(function(){
 	$('.save-nurse').click(on_save_nurse_click);
 	$('.save-patient').click(on_save_patient_click);
 	$('.save-booking').click(on_save_booking_click);
+	$('.save-setting').click(on_save_setting_click)
 });
 
 
@@ -48,6 +50,7 @@ function onLoadingCompleteUI()
 	$('#loading-cover').hide();
 	$('.simulation-control').show();
 	
+	setMap();
 	sims = new Simulator(data);
 	sims.performScheduling();
 	sims.simulationTickFunction = onSimulationTick;
@@ -310,4 +313,24 @@ function on_save_booking_click()
 		$('.cover').hide();
 		showListUI();
 	}
+}
+
+function on_save_setting_click()
+{
+	var txtAPIKey = $('#txtAPIKey');
+	var txtBaseAddress = $('#txtBaseAddress');
+	
+	if (txtBaseAddress.val() != "" && txtAPIKey.val() != "")
+	{
+		google_api_key = txtAPIKey.val();
+		setBase('BASE', txtBaseAddress.val());
+		$('.cover').hide();
+		$('#main-cover').show();
+	}
+}
+
+function on_options_click()
+{
+	$('.cover').hide();
+	$('#setting-cover').show();
 }

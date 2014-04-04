@@ -11,6 +11,7 @@ function Simulator(data)
 	this.simulationSpeed = 500;
 	this.simulatorInterval = null;
 	this.simulationTickFunction = function() { };
+	this.trackNurse = '';
 	
 	/* Calculates and schedule all tasks  */
 	this.performScheduling = function()
@@ -406,6 +407,8 @@ function Simulator(data)
 		pairName = pair(booking2, booking1);
 		return this.simulationData.routes[pairName];
 	}
+
+	
 	
 	this.plot = function()
 	{
@@ -414,8 +417,23 @@ function Simulator(data)
 		{
 			var patientName = this.simulationData.patientList[i];
 			var patient = this.simulationData.patients[patientName];
+		
+			var bookingHTML = '<br/>';
+			var bookingCount = 1;
+			
+			for (var j = 0; j < this.simulationData.bookings.length; j++)
+			{
+				var booking = this.simulationData.bookings[j];
+				if (booking.patientName == patientName)
+				{
+					bookingHTML += '<b> Booking #' + bookingCount + '</b> at ' + this.formatTime(booking.bookingHour, booking.bookingMinute) + '<br/>';
+					bookingCount++;
+				}
+			}
 			
 			patient.marker = addMarker([patient.lat, patient.lng], { icon: patient_icon });
+			patient.marker.bindPopup('Patient: <b>' + patientName + '</b><br/>Address: <b>' + patient.address + '</b><br/>' + bookingHTML);
+		
 		}
 		
 		// Plot all of the nurses
@@ -425,7 +443,25 @@ function Simulator(data)
 			var nurse = this.simulationData.nurses[nurseName];
 			
 			nurse.marker = addMarker([this.simulationData.base.lat, this.simulationData.base.lng], { icon: nurse_icon });
+			nurse.marker.bindPopup('Nurse: <b>' + nurseName + '</b><br/><span id="nurse-marker-' + nurseName.replace(' ', '') + '"></span><br/><br/><div class="button track" data-nurse="' + nurseName + '">Track This Nurse</div>');
 		}
+		
+		var mm = this;
+		$(document).off('click', '.track').on('click', '.track', function(){
+			
+			var nurseName = $(this).data('nurse');
+			if (mm.trackNurse == nurseName)
+			{
+				mm.trackNurse = '';
+				$('.track').html("Track this Nurse");
+			}
+			else
+			{
+				mm.trackNurse = nurseName;
+				$('.track').html("Track this Nurse");
+				$(this).html("Stop Tracking");
+			}
+		});
 		
 		// for each of the nurse schedule, plot the route
 		for (var i = 0; i < this.schedule.length; i++)
@@ -462,11 +498,22 @@ function Simulator(data)
 				var marker = nurse.marker;
 				
 				var slot = scheduleSlots.slots[currentInstance.currentTime];
+				if (slot.lat == 0 && slot.lng == 0)
+				{
+					if (this.trackNurse == scheduleSlots.nurseName)
+					{
+						this.trackNurse = '';
+						$('.track').html("Track this Nurse");
+					}
+				}
+				
 				var newLatLng = new L.LatLng(slot.lat, slot.lng);
 			    marker.setLatLng(newLatLng); 
 			}
 			
 			currentInstance.simulationTickFunction();
+			currentInstance.updateMarkers();
+			currentInstance.followTrackedMarker();
 		}
 		else
 		{
@@ -477,6 +524,41 @@ function Simulator(data)
 	this.stopSimulation = function()
 	{
 		clearInterval(this.simulatorInterval);
+	}
+	
+	this.updateMarkers = function()
+	{
+		// we update the nurse to find out their actions
+		for (var i = 0; i < this.schedule.length; i++)
+		{
+			var sch = this.schedule[i];
+			var nurseName = sch.nurseName;
+			var slot = sch.slots[this.currentTime];
+			
+			$('#nurse-marker-' + nurseName.replace(' ', '')).html(slot.action);
+		}
+	}
+	
+	this.followTrackedMarker = function()
+	{
+		if (this.trackNurse != '')
+		{
+			var nurse = this.simulationData.nurses[this.trackNurse];
+			if (nurse)
+			{
+				var marker = nurse.marker;
+				var latlng = marker.getLatLng();
+				
+				if (latlng.lat == 0 && latlng.lng == 0)
+				{
+					this.trackNurse = '';
+				}
+				else
+				{
+					map.setView([latlng.lat, latlng.lng], 12);
+				}
+			}
+		}
 	}
 	
 	this.normal = function()
@@ -493,6 +575,17 @@ function Simulator(data)
 		this.simulationSpeed = 200;
 		var that = this;
 		this.simulatorInterval = setInterval(function() { that.simulatingFunction(that); }, this.simulationSpeed);
+	}
+	
+	this.formatTime = function(hour, minute)
+	{
+		var hourStr = hour + '';
+		if (hour < 10) hourStr = '0' + hour;
+		
+		var minuteStr = minute +'';
+		if (minute < 10) minuteStr = '0' + minute;
+		
+		return hourStr + ':' + minuteStr;
 	}
 	
 	
